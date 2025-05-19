@@ -5,8 +5,7 @@ Please download the source and intermediate data files from Zenodo and place the
 
 In each folder, run the `main.R` script to perform analysis and make relevant figures.
 
-
-**Fig. 1c**
+See more information in the `Figures_summary.xlsx` file. 
 
 | Figure                | Script-containing folder                                   |
 | --------------------- | ---------------------------------------------------------- |
