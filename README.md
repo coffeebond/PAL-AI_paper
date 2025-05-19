@@ -88,3 +88,5 @@ See more information in the `Figures_summary.xlsx` file.
 | Supplementary Fig. 9b | All_of_Us_analysis                                         |
 | Supplementary Fig. 9c | Gnomad_analysis                                            |
 | Supplementary Fig. 9d | Gnomad_analysis                                            |
+
+Note that the processed files from All of Us Research Program and gnomAD variants were not included due to sensitive human genetic information. 

@@ -1,10 +1,7 @@
 import os, pysam, subprocess, pybedtools, gzip, math
 from time import time
 from datetime import datetime
-from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
-from multiprocessing import Manager, cpu_count
-from collections import deque
-
+from multiprocessing import Pool, cpu_count
 def timer(t_start):
     return f"{int(time() - t_start)}s"
 
@@ -65,17 +62,29 @@ def process_batch(batch_indices, ref_bed_file, gcs_dir, local_dir):
                     else:
                         v_type = 'NA'
                     
-                    for j, alt in enumerate(rec.alts):
+                    # each allele may have multiple alternative alleles
+                    for j in range(len(rec.alts)):
                         # check the filter (sometimes the filter has only one entry even if there are multiple alt alleles)
                         if len(rec.filter) == 0:
                             v_filter = 'PASS'
                         else:
                             v_filter = ','.join([x for x in rec.filter])
+
+                        v_alt = rec.alts[j]
+                        if 'AF' in rec.info.keys():
+                            v_af = rec.info['AF'][j]
+                        else:
+                            v_af = 'NA'
+                        if 'AC' in rec.info.keys():
+                            v_ac = rec.info['AC'][j]
+                        else:
+                            v_ac = 'NA'
                                 
                         row = [
-                            rec.chrom, rec.pos, rec.ref, alt,
-                            rec.info.get('AF', ['NA'])[j],
-                            rec.info.get('AC', ['NA'])[j],
+                            rec.chrom, rec.pos, rec.ref, 
+                            v_alt,
+                            v_af,
+                            v_ac,
                             v_an,
                             v_id,
                             v_type,
@@ -95,9 +104,9 @@ def process_batch(batch_indices, ref_bed_file, gcs_dir, local_dir):
     
     return batch_results
 
+
 t_start = time()
 local_dir = "Temp_files/"
-os.makedirs(local_dir, exist_ok=True)
 gcs_dir = "gs://fc-aou-datasets-controlled/v8/wgs/short_read/snpindel/exome/vcf/"
 f_log = open("Annotate_3UTR_variants_exome_v8_log.txt", 'w')
 
@@ -115,52 +124,50 @@ total_files = len(idx_lst)
 pwrite(f_log, f"Total number of files to process: {total_files}")
 
 
+# Configurable settings
 NUM_CORES = cpu_count()          # Use all available cores
+FILES_PER_CORE_PER_BATCH = 10    # Process this many files per core at a time
+BATCH_SIZE = NUM_CORES * FILES_PER_CORE_PER_BATCH  # Total files per batch
 pwrite(f_log, f"Total number of cores: {NUM_CORES}")
 
-FILES_PER_TASK = 10
-MAX_PENDING = NUM_CORES * 2
-LOG_INTERVAL = 1000
+# Split into batches
+num_batches = math.ceil(total_files / BATCH_SIZE)
+processed_files = 0
 
-counter = 0
-idx_iter = iter(idx_lst)
-futures = []
-
-with gzip.open(output_file, 'wt') as f_out, ProcessPoolExecutor(NUM_CORES) as executor:
-    f_out.write('\t'.join([
-        'chromosome', 'position', 'ref', 'alt', 'af', 'ac', 'an',
+# Write output header
+with gzip.open(output_file, 'wt') as f:
+    f.write('\t'.join([
+        'chromosome', 'position', 'ref', 'alt', 'af', 'ac', 'an', 
         'id', 'type', 'filter', 'pa_site', 'transcript_id'
     ]) + '\n')
 
-    while True:
-        try:
-            batch = [next(idx_iter) for _ in range(FILES_PER_TASK)]
-        except StopIteration:
-            break
+# Process batches sequentially (with parallel processing within each batch)
+for batch_num in range(num_batches):
+    batch_start = batch_num * BATCH_SIZE
+    batch_end = min((batch_num + 1) * BATCH_SIZE, total_files)
+    batch_indices = idx_lst[batch_start:batch_end]
 
-        futures.append(executor.submit(process_batch, batch, ref_bed_file, gcs_dir, local_dir))
+    pwrite(f_log, f"\nProcessing batch {batch_num + 1}/{num_batches} (files {batch_start + 1}-{batch_end})...")
 
-        if len(futures) >= MAX_PENDING:
-            done, _ = wait(futures, return_when=FIRST_COMPLETED)
-            for f in done:
-                results = f.result()
-                for row in results:
-                    f_out.write(row + '\n')
-                counter += FILES_PER_TASK
-                if counter % LOG_INTERVAL == 0:
-                    pwrite(f_log, f"Processed: {counter}/{total_files} files | Time elapsed: {timer(t_start)}")
-                futures.remove(f)
+    # Split batch into sub-batches for each core
+    sub_batches = [batch_indices[i::NUM_CORES] for i in range(NUM_CORES)]
 
-    # Finish any remaining tasks
-    done, _ = wait(futures)
-    for f in done:
-        results = f.result()
-        for row in results:
-            f_out.write(row + '\n')
-        counter += FILES_PER_TASK
-        if counter % LOG_INTERVAL == 0 or counter >= total_files:
-            pwrite(f_log, f"Processed: {counter}/{total_files} files | Time elapsed: {timer(t_start)}")
+    with Pool(NUM_CORES) as pool:
+        batch_results = pool.starmap(
+            process_batch,
+            [(sub_batch, ref_bed_file, gcs_dir, local_dir) for sub_batch in sub_batches]
+        )
 
+    # Write results for this batch
+    with gzip.open(output_file, 'at') as f:  # 'at' = append in text mode
+        for sub_batch_result in batch_results:
+            for row in sub_batch_result:
+                f.write(row + '\n')
+
+    processed_files += len(batch_indices)
+    pwrite(f_log, f"Completed: {processed_files}/{total_files} files | Time elapsed: {timer(t_start)}")
+
+# Upload final output to GCS
 subprocess.run(f"gsutil -u $GOOGLE_PROJECT cp {output_file} {os.getenv('WORKSPACE_BUCKET')}/Output/", shell=True)
 pwrite(f_log, f"\nDone! Total time: {timer(t_start)}")
-f_log.close()
+
