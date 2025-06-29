@@ -1,11 +1,13 @@
-## This repository contains scripts necessary to reproduce figures presented in PAL-AI paper.
+## This repository contains scripts necessary to reproduce figures presented in the PAL-AI paper.
 
 
-Please download the source and intermediate data files from Zenodo and place them in the `Data` folder.
+Please download the source and processed data files from [Zenodo](https://doi.org/10.5281/zenodo.15461000) and place them in the `Data` folder.
 
-In each folder, run the `main.R` script to perform analysis and make relevant figures.
+In each folder, source the `helper.R` and run the `main.R` script to perform analysis and make relevant figures.
 
 See more information in the `Figures_summary.xlsx` file. 
+
+If you 
 
 | Figure                | Script-containing folder                                   |
 | --------------------- | ---------------------------------------------------------- |
@@ -60,7 +62,7 @@ See more information in the `Figures_summary.xlsx` file.
 | Supplementary Fig. 3h | Library_CPEmos_N60_reanalysis                              |
 | Supplementary Fig. 3i | INN_ISM                                                    |
 | Supplementary Fig. 3j | INN_ISM                                                    |
-| Supplementary Fig. 4b | INN_measured_vs_predicted                                  |
+| Supplementary Fig. 4a | INN_measured_vs_predicted                                  |
 | Supplementary Fig. 4c | INN_measured_vs_predicted                                  |
 | Supplementary Fig. 4d | INN_ISM_N60_PASmos_LC                                      |
 | Supplementary Fig. 4e | INN_ISM_N60_PASmos_LC                                      |
@@ -90,3 +92,9 @@ See more information in the `Figures_summary.xlsx` file.
 | Supplementary Fig. 9d | Gnomad_analysis                                            |
 
 Note that the processed files from All of Us Research Program and gnomAD variants were not included due to sensitive human genetic information. 
+
+## Citation
+
+If you use data and codes presented here, please cite:
+
+Xiang & Bartel, bioRxiv, 2025 [https://doi.org/10.1101/2024.10.29.620940]

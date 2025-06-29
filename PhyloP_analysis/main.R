@@ -78,6 +78,7 @@ res <- phylop_box_plot(df.plot,
 											 ybreaks = seq(-1,5,0.5), 
 											 fn = 'PhyloP_score_by_tl_diff_boxplot')
 print(res, n = Inf)
+write_delim(res, file = 'PhyloP_score_by_tl_diff_wilcon_test_results.txt', delim = '\t')
 
 ##-- heatmap for p values
 ###--- Supplementary Fig. 9a ---### 

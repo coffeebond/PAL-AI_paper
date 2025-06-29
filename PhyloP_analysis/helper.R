@@ -140,10 +140,14 @@ phylop_box_plot <- function(df_in, group_col = 'group', y_col = 'diff_tl', group
 		bind_rows(
 			list('group_x' = group_combo[x, 1], 
 					 'group_y' = group_combo[x, 2], 
+					 'n_x' = length(x_series),
+					 'n_y' = length(y_series),
 					 'pval' = wilcox.test(x = x_series, y = y_series, alternative = 'less')$p.value
 			),
 			list('group_x' = group_combo[x, 2], 
 					 'group_y' = group_combo[x, 1], 
+					 'n_x' = length(y_series),
+					 'n_y' = length(x_series),
 					 'pval' = wilcox.test(x = y_series, y = x_series, alternative = 'less')$p.value
 			)
 		) %>% return(.)
@@ -196,7 +200,7 @@ phylop_box_plot <- function(df_in, group_col = 'group', y_col = 'diff_tl', group
 			axis.ticks.y = element_line(color = "black", linewidth = line_w),
 			
 			legend.title = element_blank(),
-			legend.position='right',
+			legend.position='none',
 			legend.justification=c(1,1),
 			legend.background = element_blank(),
 			legend.text = element_text(size=font_size-0.5,color='black', margin = margin(l = 2,b = 0, unit = "points")),
@@ -209,7 +213,7 @@ phylop_box_plot <- function(df_in, group_col = 'group', y_col = 'diff_tl', group
 			aspect.ratio = 1
 		)
 	if (ft == 'pdf'){
-		CairoPDF(paste0(fn, '.pdf'), width = 3, height = 2, family = 'Arial')
+		CairoPDF(paste0(fn, '.pdf'), width = 2, height = 2, family = 'Arial')
 	} else {
 		png(file=paste0(fn,'.png'), width=2, height=2,unit='in',res=600,bg='transparent')
 	}

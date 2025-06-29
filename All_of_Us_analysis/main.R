@@ -45,7 +45,7 @@ diff_breaks <- c(-Inf, seq(-25,25,10), Inf)
 
 df.freq <- lapply(1:length(af_cutoff_vec), function(x){
 	pred_df_filtered %>% filter(dis2end <= dis_cutoff) %>% 
-		filter(ac > 1 & af > af_cutoff_vec[x]) %>% #filter(pas == 0) %>%
+		filter(ac > 1 & af > af_cutoff_vec[x]) %>% # filter(pas == 0) %>%
 		mutate(bin = cut(diff_tl, breaks = diff_breaks, labels = paste0("(", head(diff_breaks, -1), ", ", tail(diff_breaks, -1), "]"), include.lowest = TRUE, right = FALSE)) %>%
 		group_by(bin) %>% summarize(n1 = n()) %>% 
 		mutate(frac = n1/sum(n1), n2 = sum(n1) - n1, label = af_groups[x])
@@ -67,6 +67,10 @@ df_ratio_pval <- lapply(af_groups, function(x){
 		tibble(
 			'group_1' = 'Singleton',
 			'group_2' = x,
+			'n_group_1_in_bin' = df.combined %>% filter(bin == y & label == 'Singleton') %>% pull(n1),
+			'n_group_1_out_bin' = df.combined %>% filter(bin == y & label == 'Singleton') %>% pull(n2),
+			'n_group_2_in_bin' = df.combined %>% filter(bin == y & label == x) %>% pull(n1),
+			'n_group_2_out_bin' = df.combined %>% filter(bin == y & label == x) %>% pull(n2),
 			'bin' = y,
 			'pval' = fisher.test(
 				df.combined %>% filter(bin == y & label %in% c('Singleton', x)) %>%
@@ -76,7 +80,11 @@ df_ratio_pval <- lapply(af_groups, function(x){
 				arrange(label) %>% pull(frac) %>% {.[1]/.[2]}
 		)
 	}) %>% bind_rows
-}) %>% bind_rows
+}) %>% bind_rows 
+
+# output the test results
+write_delim(df_ratio_pval, file = paste0('All_of_Us_fraction_of_variants_by_allele_frequency_and_tail_length_change_bin_dis2end_', dis_cutoff + 1, '_test_results.txt'), delim ='\t')
+#write_delim(df_ratio_pval, file = paste0('All_of_Us_fraction_of_variants_by_allele_frequency_and_tail_length_change_bin_no_pas_change_dis2end_', dis_cutoff + 1, '_test_results.txt'), delim ='\t')
 
 # prepare data for plot
 df.plot <- df_ratio_pval %>% mutate(r = 1/ratio_of_frac,

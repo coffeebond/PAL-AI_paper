@@ -12,7 +12,7 @@ pred_df <- read_delim('../Data/INN_model_predictions/XL_oo_pp_7h_tail_length_cha
 res <- prediction_w_sele_scatter_plot(pred_df, xy_breaks = seq(-60,180,30), gene_id = 'id', fn = 'XL_oocyte_INN_pred_scatter_plot', ft = 'pdf')
 
 ###----------------------------------------------------------------------------------------------------------
-###--- Fig. 3c ---###
+###--- Supplementary Fig. 4a ---###
 ##-- prediction versus measured scatter plot
 # Training data: Frog endogenous mRNA tail-length change during oocyte maturation
 # Predictions: N60(LC)-PASmos library tail-length change during frog oocyte maturation
@@ -20,7 +20,7 @@ df_pred <- read_delim('../Data/INN_model_predictions/XL_INN_model_predicts_N60_P
 res <- prediction_w_sele_scatter_plot(df_pred, gene_id = 'id', xy_breaks = seq(-40,200,40), fn = 'XL_oocyte_INN_pred_N60_PASmos_pp_7h_scatter_plot', ft = 'pdf')
 
 ###----------------------------------------------------------------------------------------------------------
-###--- Fig. 3d ---###
+###--- Supplementary Fig. 4c ---###
 ##-- prediction versus measured scatter plot
 # Training data: N60(LC)-PASmos library tail-length change during frog oocyte maturation
 # Predictions: same as the training set, cross validation
@@ -29,8 +29,8 @@ res <- prediction_w_sele_scatter_plot(df_pred, gene_id = 'id', xy_breaks = seq(-
 
 ###----------------------------------------------------------------------------------------------------------
 ##-- prediction versus measured scatter plot
-###--- Supplementary Fig. 4b ---###
-###--- Supplementary Fig. 4c ---###
+###--- Fig. 3c---###
+###--- Fig. 3d---###
 # Training data: Frog endogenous mRNA and N60(LC)-PASmos library tail-length change during frog oocyte maturation
 # Predictions: same as the training set, cross validation
 df_pred <- read_delim('../Data/INN_model_predictions/XL_endogenous_mRNA_and_N60_PASmos_library_MINN_train_test_CV_prediction_results.txt')

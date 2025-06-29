@@ -131,12 +131,8 @@ prediction_w_sele_scatter_plot <- function(df_in, gene_id = 'idx', xaxis = 'y', 
 scatter_plot <- function(df_in, col_x, col_y, xbreaks = NULL, ybreaks = NULL, xlabel = 'x', ylabel = 'y', fn = 'plot'){
 	df.plot <- df_in %>% mutate(x = df_in %>% pull(col_x),
 															y = df_in %>% pull(col_y))
-	pval <- cor.test(df.plot$x, df.plot$y, method = 'p')$p.value
-	if (pval < 0.01 && pval != 0) {
-		pv.label <- bquote(italic(P)<10^.(ceiling(log10(pval))))
-	} else {
-		pv.label <- bquote(italic(P)==.(format(pval, digits = 2)))
-	}
+	pval <- cor.test(df.plot$x, df.plot$y, method = 'p', alternative = 'greater')$p.value
+	pv.label <- bquote(italic(P)==.(format(pval, scientific = TRUE, digits = 2)))
 	rp <- round(cor(df.plot$x, df.plot$y, method = 'p'),2)
 	rs <- round(cor(df.plot$x, df.plot$y, method = 's'),2)
 	

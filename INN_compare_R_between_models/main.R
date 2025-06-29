@@ -28,6 +28,7 @@ res <- r_distribution_violin_plot(df_in = df.plot,
 
 # examine p values of t-tests
 print(res, n = Inf)
+write_delim(res, file = 'XL_oocyte_maturation_INN_models_r_value_comparion_test_results.txt', delim = '\t')
 
 ##-- heatmap for p values 
 pval_heatmap(res, col_x = 'group_x', col_y = 'group_y', col_val = 'pval',

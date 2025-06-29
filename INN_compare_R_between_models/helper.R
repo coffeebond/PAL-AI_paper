@@ -35,10 +35,14 @@ r_distribution_violin_plot <- function(df_in, groups, ybreaks = NULL, group_colo
 		bind_rows(
 			list('group_x' = group_combo[x, 1], 
 					 'group_y' = group_combo[x, 2], 
+					 'n_x' = length(x_series),
+					 'n_y' = length(y_series),
 					 'pval' = t.test(x = x_series, y = y_series, alternative = 'less')$p.value
 					 ),
 			list('group_x' = group_combo[x, 2], 
 					 'group_y' = group_combo[x, 1], 
+					 'n_x' = length(y_series),
+					 'n_y' = length(x_series),
 					 'pval' = t.test(x = y_series, y = x_series, alternative = 'less')$p.value
 					 )
 		) %>% return(.)

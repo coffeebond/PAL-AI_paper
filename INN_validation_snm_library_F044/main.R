@@ -76,12 +76,17 @@ df_t_test <- lapply(c('rp', 'rs'), function(r_sele){
 		temp <- df.plot %>% filter(r_type == r_sele & gene_name == gene)
 		tibble(
 			gene_name = gene,
+			n_minn = temp %>% filter(model == 'minn') %>% nrow,
+			n_inn = temp %>% filter(model == 'minn') %>% nrow,
 			pval = t.test(x = temp %>% filter(model == 'minn') %>% pull(r_value), 
 										y = temp %>% filter(model == 'inn') %>% pull(r_value), 
 										alternative = 'greater')$p.value
 		)
 	}) %>% bind_rows() %>% mutate(r_type = r_sele)
 }) %>% bind_rows()
+
+# output test results
+write_delim(df_t_test, file = 'XL_oocyte_F044_pearson_R_values_MINN_vs_INN_test_results.txt', delim = '\t')
 
 # pearson R barplot with errorbar and jitter points
 ###--- Fig. 4b ---###
