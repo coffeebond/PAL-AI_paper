@@ -95,6 +95,6 @@ Note that the processed files from All of Us Research Program and gnomAD variant
 
 ## Citation
 
-If you use data and codes presented here, please cite:
+If you use data or codes presented here, please cite:  
 
-Xiang & Bartel, bioRxiv, 2025 [https://doi.org/10.1101/2024.10.29.620940]
+[Kehui Xiang, David P. Bartel. PAL-AI reveals genetic determinants that control poly(A)-tail length during oocyte maturation, with relevance to human fertility. ***Nature Communications*** 16, 7079 (2025)](https://www.nature.com/articles/s41467-025-62171-5)
